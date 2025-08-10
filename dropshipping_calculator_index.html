@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dropshipping Calculator</title>
+  <style>
+    :root{ --bg:#0f1724; --card:#0b1220; --accent:#06b6d4; --muted:#94a3b8; --glass: rgba(255,255,255,0.03)}
+    *{box-sizing:border-box}
+    body{font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin:0; background:linear-gradient(180deg,#071025 0%, #08162a 100%); color:#e6eef6; padding:20px;}
+    .wrap{max-width:900px;margin:24px auto;padding:20px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:12px; box-shadow:0 8px 30px rgba(2,6,23,0.6)}
+    h1{font-size:20px;margin:0 0 8px}
+    p.lead{color:var(--muted);margin:0 0 18px;font-size:13px}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    input[type="number"], input[type="text"], select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:var(--card);color:inherit;font-size:14px}
+    .full{grid-column:1/-1}
+    .result{background:var(--glass);padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+    .row{display:flex;gap:10px;align-items:center}
+    button{background:var(--accent);border:none;color:#062024;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer}
+    small.muted{color:var(--muted);display:block;margin-top:6px}
+    .kpi{display:flex;gap:10px;flex-wrap:wrap}
+    .kpi .card{flex:1;min-width:180px;padding:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:10px}
+    .kpi .value{font-size:18px;font-weight:700}
+    footer{margin-top:14px;color:var(--muted);font-size:13px}
+    @media (max-width:700px){.grid{grid-template-columns:1fr}.kpi{flex-direction:column}.wrap{padding:16px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Dropshipping Calculator</h1>
+    <p class="lead">Product cost, shipping, fees aur ads cost daalo — profit per unit aur margin turant mil jayega. Mobile-first UI.</p>
+
+    <div class="grid">
+      <div>
+        <label>Product cost (₹)</label>
+        <input id="cost" type="number" step="0.01" value="200" />
+      </div>
+
+      <div>
+        <label>Shipping cost (₹)</label>
+        <input id="shipping" type="number" step="0.01" value="50" />
+      </div>
+
+      <div>
+        <label>Platform fee (%) <small class="muted">(e.g. marketplace commission)</small></label>
+        <input id="platformFeePerc" type="number" step="0.01" value="10" />
+      </div>
+
+      <div>
+        <label>Transaction fee (fixed ₹)</label>
+        <input id="txnFeeFixed" type="number" step="0.01" value="3" />
+      </div>
+
+      <div>
+        <label>Advertising cost per sale (₹)</label>
+        <input id="ads" type="number" step="0.01" value="100" />
+      </div>
+
+      <div>
+        <label>Selling price (₹)</label>
+        <input id="price" type="number" step="0.01" value="699" />
+      </div>
+
+      <div>
+        <label>Quantity (units) <small class="muted">(for total profit)</small></label>
+        <input id="qty" type="number" step="1" value="1" />
+      </div>
+
+      <div>
+        <label>Other cost per unit (₹) <small class="muted">packaging, returns, etc.</small></label>
+        <input id="other" type="number" step="0.01" value="20" />
+      </div>
+
+      <div class="full">
+        <label>Currency symbol</label>
+        <input id="currency" type="text" value="₹" />
+      </div>
+
+      <div class="full row" style="justify-content:space-between;align-items:center;margin-top:6px">
+        <div style="display:flex;gap:8px">
+          <button id="calcBtn">Calculate</button>
+          <button id="clearBtn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)">Clear</button>
+        </div>
+        <div style="font-size:13px;color:var(--muted)">Tip: change selling price to see margin instantly</div>
+      </div>
+
+    </div>
+
+    <div style="margin-top:16px">
+      <div class="result">
+        <div class="kpi">
+          <div class="card">
+            <div style="font-size:12px;color:var(--muted)">Revenue per unit</div>
+            <div id="rev" class="value">-</div>
+          </div>
+
+          <div class="card">
+            <div style="font-size:12px;color:var(--muted)">Total cost per unit</div>
+            <div id="totalCost" class="value">-</div>
+          </div>
+
+          <div class="card">
+            <div style="font-size:12px;color:var(--muted)">Profit per unit</div>
+            <div id="profitUnit" class="value">-</div>
+          </div>
+
+          <div class="card">
+            <div style="font-size:12px;color:var(--muted)">Profit margin</div>
+            <div id="margin" class="value">-</div>
+          </div>
+        </div>
+
+        <hr style="border:0;border-top:1px solid rgba(255,255,255,0.03);margin:12px 0">
+
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+          <div style="min-width:200px">
+            <label>Total profit for quantity</label>
+            <div id="totalProfit" style="font-weight:700;font-size:18px">-</div>
+          </div>
+
+          <div style="flex:1">
+            <label>Break-even price (₹)</label>
+            <div id="breakeven" style="font-weight:700;font-size:18px">-</div>
+            <small class="muted">Minimum selling price to make zero profit after fees & costs</small>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <footer>
+      <div>Simple calculator — modify fields as per your platform's exact fees. Built for mobile copy-paste.</div>
+    </footer>
+  </div>
+
+  <script>
+    function money(v){
+      const cur = document.getElementById('currency').value || '₹';
+      // format to 2 decimal places
+      return cur + parseFloat(v||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+    }
+
+    function calculate(){
+      const cost = parseFloat(document.getElementById('cost').value) || 0;
+      const shipping = parseFloat(document.getElementById('shipping').value) || 0;
+      const platformPerc = parseFloat(document.getElementById('platformFeePerc').value) || 0; // percent
+      const txnFixed = parseFloat(document.getElementById('txnFeeFixed').value) || 0;
+      const ads = parseFloat(document.getElementById('ads').value) || 0;
+      const price = parseFloat(document.getElementById('price').value) || 0;
+      const qty = parseInt(document.getElementById('qty').value) || 1;
+      const other = parseFloat(document.getElementById('other').value) || 0;
+
+      // platform fee amount = percentage of selling price
+      const platformFeeAmount = (platformPerc/100) * price;
+
+      // revenue per unit = price
+      const revenue = price;
+
+      // total cost per unit = product cost + shipping + platformFeeAmount + txnFixed + ads + other
+      const totalCostPerUnit = cost + shipping + platformFeeAmount + txnFixed + ads + other;
+
+      // profit per unit
+      const profitPerUnit = revenue - totalCostPerUnit;
+
+      // profit margin percent = profit / revenue * 100 (if revenue > 0)
+      const marginPerc = revenue > 0 ? (profitPerUnit / revenue) * 100 : 0;
+
+      // total profit for qty
+      const totalProfit = profitPerUnit * qty;
+
+      // break-even price: price where profit per unit = 0 -> price = totalCostsExceptPlatformPercent / (1 - platformPerc/100)
+      // careful if platformPerc >= 100
+      let breakeven = NaN;
+      if (platformPerc < 100){
+        // total costs that don't scale with price: cost + shipping + txnFixed + ads + other
+        const fixedCosts = cost + shipping + txnFixed + ads + other;
+        breakeven = fixedCosts / (1 - platformPerc/100);
+      }
+
+      // render
+      document.getElementById('rev').textContent = money(revenue);
+      document.getElementById('totalCost').textContent = money(totalCostPerUnit);
+      document.getElementById('profitUnit').textContent = money(profitPerUnit);
+      document.getElementById('margin').textContent = (marginPerc).toFixed(2) + '%';
+      document.getElementById('totalProfit').textContent = money(totalProfit);
+      document.getElementById('breakeven').textContent = isFinite(breakeven) ? money(breakeven) : '—';
+
+      // color hint for profit
+      const profitCard = document.getElementById('profitUnit');
+      if (profitPerUnit < 0){
+        profitCard.style.color = '#ff8a8a';
+      } else if (profitPerUnit === 0){
+        profitCard.style.color = '#f0e68c';
+      } else {
+        profitCard.style.color = '#c8ffd6';
+      }
+    }
+
+    document.getElementById('calcBtn').addEventListener('click', calculate);
+    document.getElementById('clearBtn').addEventListener('click', function(){
+      // reset to defaults
+      document.getElementById('cost').value = '';
+      document.getElementById('shipping').value = '';
+      document.getElementById('platformFeePerc').value = '';
+      document.getElementById('txnFeeFixed').value = '';
+      document.getElementById('ads').value = '';
+      document.getElementById('price').value = '';
+      document.getElementById('qty').value = '1';
+      document.getElementById('other').value = '';
+      document.getElementById('rev').textContent = '-';
+      document.getElementById('totalCost').textContent = '-';
+      document.getElementById('profitUnit').textContent = '-';
+      document.getElementById('margin').textContent = '-';
+      document.getElementById('totalProfit').textContent = '-';
+      document.getElementById('breakeven').textContent = '-';
+    });
+
+    // live calc when selling price changes (helpful)
+    document.getElementById('price').addEventListener('input', calculate);
+    document.getElementById('platformFeePerc').addEventListener('input', calculate);
+
+    // initial calculate
+    calculate();
+  </script>
+</body>
+</html>
